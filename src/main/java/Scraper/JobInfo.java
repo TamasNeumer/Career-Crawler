@@ -5,4 +5,7 @@ public class JobInfo {
     public String jobDecription;
 
     // TODO write serializer (json, string etc.)
+    public String toString(){
+        return "Title: " + this.jobTitle + " Description: " + this.jobDecription;
+    }
 }

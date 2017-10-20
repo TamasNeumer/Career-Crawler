@@ -10,8 +10,8 @@ public class JobCrawlerbackend {
         ArrayList<String> listOfURLs = karriereScraper.getUrlsOfPagesContainingJobLists();
         for(String pageUrl : listOfURLs)
         {
-            ArrayList<JobInfo> result = karriereScraper.parseJobsOnPage(pageUrl);
-            System.out.println("GG");
+            System.out.println(karriereScraper.parseJobsOnPage(pageUrl).toString());
+
         }
     }
 }

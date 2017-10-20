@@ -1,17 +1,10 @@
 package Scraper;
 
-import java.lang.reflect.Array;
-import java.math.BigDecimal;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.gargoylesoftware.htmlunit.html.*;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.util.Cookie;
-import jdk.nashorn.internal.scripts.JO;
 
 
 public class KarriereAtScraper implements CareerWebsiteScraper {
@@ -26,9 +19,9 @@ public class KarriereAtScraper implements CareerWebsiteScraper {
 
     public ArrayList<JobInfo> parseJobsOnPage(String url) {
         List<HtmlElement> jobTitleHtmlElements = getListOfJobTitlesOnPage(webClient, url);
-        if (jobTitleHtmlElements == null){
+        if (jobTitleHtmlElements.isEmpty()) {
             System.out.println("No JobTitles found");
-            return null;
+            return new ArrayList<JobInfo>();
         }
 
         ArrayList<JobInfo> jobs = new ArrayList<JobInfo>();
@@ -55,7 +48,7 @@ public class KarriereAtScraper implements CareerWebsiteScraper {
             String[] pageNumbers = htmlSpanContainingPageNumber.asText().split("von");
             return Integer.parseInt(pageNumbers[1].replaceAll("\\s", "").replaceAll(",", ""));
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("span[@class='m-pagination__meta'] not found on the website. Exception: " + e.getMessage());
             return 0;
         }
     }
@@ -65,12 +58,12 @@ public class KarriereAtScraper implements CareerWebsiteScraper {
             HtmlPage currentPage = webClient.getPage(url);
             return (List<HtmlElement>) currentPage.getByXPath("//a[@class='m-jobItem__titleLink']");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("a[@class='m-jobItem__titleLink'] not found on the website. Exception:" + e.getMessage());
         }
-        return null;
+        return new ArrayList<HtmlElement>();
     }
 
-    private JobInfo createJobInfoWithTitle(HtmlElement jobElement ) {
+    private JobInfo createJobInfoWithTitle(HtmlElement jobElement) {
         JobInfo newJob = new JobInfo();
         newJob.jobTitle = jobElement.asText();
         return newJob;
@@ -81,10 +74,9 @@ public class KarriereAtScraper implements CareerWebsiteScraper {
             HtmlPage currentPage = webClient.getPage(jobDescriptionUrl);
             List<HtmlElement> jobDescription = (List<HtmlElement>)
                     currentPage.getByXPath("//div[@class='m-jobContent__jobText']");
-            //TODO check length and throw if not defined
             job.jobDecription = jobDescription.get(0).asText();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("div[@class='m-jobContent__jobText'] not found in the jobDescription" + e.getMessage());
         }
     }
 
