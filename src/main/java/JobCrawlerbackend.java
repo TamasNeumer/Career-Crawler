@@ -1,5 +1,3 @@
-//package com.github.TamasNeumer;
-
 import Scraper.KarriereAtScraper;
 import org.apache.commons.cli.*;
 import java.util.ArrayList;
@@ -8,12 +6,15 @@ import java.util.ArrayList;
 public class JobCrawlerbackend {
 
     public static void main(String[] args) {
-        CommandLine cmd = parseArgs(args);
-        if(cmd == null) return;
+        //CommandLine cmd = parseArgs(args);
+        //if(cmd == null) return;
 
-        String chosenProgrammingLanguage = cmd.getOptionValue("p");
+        //String chosenProgrammingLanguage = cmd.getOptionValue("p");
+        String chosenProgrammingLanguage = "Java";
 
         KarriereAtScraper karriereScraper = new KarriereAtScraper();
+        karriereScraper.setCity("wien");
+        karriereScraper.setProgrammingLanguage("java");
         ArrayList<String> listOfURLs = karriereScraper.getUrlsOfPagesContainingJobLists();
         for(String pageUrl : listOfURLs)
         {

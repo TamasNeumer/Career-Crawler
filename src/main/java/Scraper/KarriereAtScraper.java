@@ -12,7 +12,7 @@ public class KarriereAtScraper implements CareerWebsiteScraper {
         int numberOfPages = getNumberOfPages();
         ArrayList<String> jobURLPages = new ArrayList<String>();
         for (int pageNumber = 1; pageNumber <= numberOfPages; pageNumber++) {
-            jobURLPages.add(baseURL + pageNumber + itJobFilter);
+            jobURLPages.add(baseURL + "/" + programmingLanguage + "/" + city  + pageNumberFilter + pageNumber + itJobFilter);
         }
         return jobURLPages;
     }
@@ -43,7 +43,7 @@ public class KarriereAtScraper implements CareerWebsiteScraper {
     private int getNumberOfPages() {
         try {
             String pageNumber = "1";
-            HtmlPage page = webClient.getPage(baseURL + pageNumber + itJobFilter);
+            HtmlPage page = webClient.getPage(baseURL + "/" + programmingLanguage + "/" + city  + pageNumberFilter + pageNumber + itJobFilter);
             HtmlElement htmlSpanContainingPageNumber = page.getFirstByXPath("//span[@class='m-pagination__meta']");
             String[] pageNumbers = htmlSpanContainingPageNumber.asText().split("von");
             return Integer.parseInt(pageNumbers[1].replaceAll("\\s", "").replaceAll(",", ""));
@@ -80,7 +80,20 @@ public class KarriereAtScraper implements CareerWebsiteScraper {
         }
     }
 
+    // Example: https://www.karriere.at/jobs/java/wien?page=2&jobFields%5B%5D=2172
     private WebClient webClient = createWebClient();
-    private String baseURL = "https://www.karriere.at/jobs/wien?page=";
+    private String baseURL = "https://www.karriere.at/jobs";
     private String itJobFilter = "&jobFields%5B%5D=2172";
+    private String pageNumberFilter = "?page=";
+
+
+    private String programmingLanguage = "java";
+    public void setProgrammingLanguage(String programmingLanguage) {
+        this.programmingLanguage = programmingLanguage;
+    }
+
+    private String city = "wien";
+    public void setCity(String city) {
+        this.city = city;
+    }
 }
