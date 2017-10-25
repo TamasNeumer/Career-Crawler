@@ -1,28 +1,85 @@
 import Scraper.KarriereAtScraper;
 import org.apache.commons.cli.*;
-import java.util.ArrayList;
 
+import java.util.*;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JobCrawlerbackend {
 
     public static void main(String[] args) {
-        //CommandLine cmd = parseArgs(args);
-        //if(cmd == null) return;
+        /*CommandLine cmd = parseArgs(args);
+        if(cmd == null) return;
+        String chosenProgrammingLanguage = cmd.getOptionValue("p");*/
 
-        //String chosenProgrammingLanguage = cmd.getOptionValue("p");
-        String chosenProgrammingLanguage = "Java";
+        String city = askCity();
+        String keyword = askKeyword();
 
-        KarriereAtScraper karriereScraper = new KarriereAtScraper();
-        karriereScraper.setCity("wien");
-        karriereScraper.setProgrammingLanguage("java");
+        KarriereAtScraper karriereScraper = new KarriereAtScraper(city, keyword);
+        karriereScraper.setCity(city);
+        karriereScraper.setProgrammingLanguage(keyword);
         ArrayList<String> listOfURLs = karriereScraper.getUrlsOfPagesContainingJobLists();
+
+        ArrayList<String> jobTexts = new ArrayList<>();
         for(String pageUrl : listOfURLs)
         {
-            System.out.println(karriereScraper.parseJobsOnPage(pageUrl).toString());
+            jobTexts.add(karriereScraper.parseJobsOnPage(pageUrl).toString().toLowerCase());
         }
+
+        ArrayList<String> skills;
+        try{
+           skills = getSkillsFromFile("/home/puppy/IdeaProjects/JobCrawlerbackend/skills.txt");
+        } catch (Exception e){
+            System.out.println("Couldn't open the file containing the skills! " + e.getMessage());
+            return;
+        }
+
+        HashMap<String, Integer> frequencies = new HashMap<>();
+
+        for(String skill : skills){
+            for(String text: jobTexts){
+                int count = 0;
+                Pattern p = Pattern.compile(skill);
+                Matcher m = p.matcher(text);
+                while (m.find()){
+                    count +=1;
+                }
+                if(count != 0){
+                    if(frequencies.containsKey(skill)){
+                        Integer temp = frequencies.get(skill);
+                        temp++;
+                        frequencies.put(skill, temp);
+                    }
+                    else
+                        frequencies.put(skill, count);
+                }
+            }
+        }
+        System.out.println(frequencies);
+        System.out.println("GG");
     }
 
-    private  static CommandLine parseArgs(String[] args){
+    private static String askCity(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("In which city are you looking for jobs?");
+        return scanner.nextLine().toLowerCase();
+    }
+
+    private static String askKeyword(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter keyword, title or company");
+        return scanner.nextLine().toLowerCase();
+    }
+
+    private static ArrayList<String> getSkillsFromFile(String pathToFile) throws IOException {
+      return new ArrayList<>(Files.readAllLines(Paths.get(pathToFile)));
+    }
+
+    /*private  static CommandLine parseArgs(String[] args){
         Options options = new Options();
 
         Option programmingLanguage = new Option("p", "programmingLanguage",
@@ -49,5 +106,5 @@ public class JobCrawlerbackend {
             System.exit(1);
         }
         return null;
-    }
+    }*/
 }

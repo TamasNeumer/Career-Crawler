@@ -8,6 +8,12 @@ import com.gargoylesoftware.htmlunit.WebClient;
 
 
 public class KarriereAtScraper implements CareerWebsiteScraper {
+
+    public KarriereAtScraper(String city, String keyword){
+        this.city = city;
+        this.programmingLanguage = keyword;
+    }
+
     public ArrayList<String> getUrlsOfPagesContainingJobLists() {
         int numberOfPages = getNumberOfPages();
         ArrayList<String> jobURLPages = new ArrayList<String>();
@@ -49,7 +55,8 @@ public class KarriereAtScraper implements CareerWebsiteScraper {
             return Integer.parseInt(pageNumbers[1].replaceAll("\\s", "").replaceAll(",", ""));
         } catch (Exception e) {
             System.out.println("span[@class='m-pagination__meta'] not found on the website. Exception: " + e.getMessage());
-            return 0;
+            System.out.println("Continuing, assuming that all the results fit on one page.");
+            return 1;
         }
     }
 
