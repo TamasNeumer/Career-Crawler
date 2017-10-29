@@ -1,11 +1,11 @@
 package Scraper;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.gargoylesoftware.htmlunit.html.*;
 import com.gargoylesoftware.htmlunit.WebClient;
-
 
 public class KarriereAtScraper implements CareerWebsiteScraper {
 
@@ -38,6 +38,7 @@ public class KarriereAtScraper implements CareerWebsiteScraper {
         }
         return jobs;
     }
+
 
     private WebClient createWebClient() {
         WebClient webClient = new WebClient();
@@ -87,6 +88,22 @@ public class KarriereAtScraper implements CareerWebsiteScraper {
         }
     }
 
+
+    /**
+     * Encodes the keyword(s) passed as arguments to match karriere.at's URL expectations
+     * @param keyword name to encode
+     * @return Encoded string / keyword.
+     */
+    private String encodeKeywordToURL(String keyword){
+        try{
+            // Special replacement for karriere.at URLs
+            keyword = keyword.replaceAll(" ", "-");
+            return URLEncoder.encode(keyword,"UTF-8");
+        } catch (Exception e){
+            return keyword;
+        }
+    }
+
     // Example: https://www.karriere.at/jobs/java/wien?page=2&jobFields%5B%5D=2172
     private WebClient webClient = createWebClient();
     private String baseURL = "https://www.karriere.at/jobs";
@@ -94,13 +111,13 @@ public class KarriereAtScraper implements CareerWebsiteScraper {
     private String pageNumberFilter = "?page=";
 
 
-    private String programmingLanguage = "java";
+    private String programmingLanguage;
     public void setProgrammingLanguage(String programmingLanguage) {
-        this.programmingLanguage = programmingLanguage;
+        this.programmingLanguage = encodeKeywordToURL(programmingLanguage);
     }
 
-    private String city = "wien";
+    private String city;
     public void setCity(String city) {
-        this.city = city;
+        this.city = encodeKeywordToURL(city);
     }
 }

@@ -1,10 +1,9 @@
 package Scraper;
 
 public class JobInfo {
-    public String jobTitle;
-    public String jobDecription;
+    protected String jobTitle;
+    protected String jobDecription;
 
-    // TODO write serializer (json, string etc.)
     public String toString(){
         return "Title: " + this.jobTitle + " Description: " + this.jobDecription;
     }

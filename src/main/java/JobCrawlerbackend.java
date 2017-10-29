@@ -1,6 +1,7 @@
 import Scraper.KarriereAtScraper;
 import org.apache.commons.cli.*;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 import java.io.IOException;
@@ -19,6 +20,42 @@ public class JobCrawlerbackend {
         String city = askCity();
         String keyword = askKeyword();
 
+        ArrayList<String> jobTexts = scrapeKarriereAt(city, keyword);
+
+
+        ArrayList<String> skills;
+        try{
+           skills = getSkillsFromFile("/home/puppy/IdeaProjects/JobCrawlerbackend/skills.txt");
+        } catch (Exception e){
+            System.out.println("Couldn't open the file containing the skills! " + e.getMessage());
+            return;
+        }
+
+        HashMap<String, Integer> frequencies = calcualteSkillFrequencies(skills, jobTexts);
+        System.out.println(frequencies);
+        System.out.println("Ended");
+    }
+
+    private static String askCity(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("In which city are you looking for jobs?");
+        return scanner.nextLine().toLowerCase();
+    }
+
+
+    private static String askKeyword(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter keyword, title or company");
+        return scanner.nextLine().toLowerCase();
+    }
+
+    /**
+     * Scrapes karriere.at for jobs in the IT domain, and collects jobs matching the city and keyword
+     * @param city City that is used for the search.
+     * @param keyword Keyword that is used for the search.
+     * @return ArrayList of Strings containing all the jobs' title and descriptions.
+     */
+    private static ArrayList<String> scrapeKarriereAt(String city, String keyword){
         KarriereAtScraper karriereScraper = new KarriereAtScraper(city, keyword);
         karriereScraper.setCity(city);
         karriereScraper.setProgrammingLanguage(keyword);
@@ -29,21 +66,34 @@ public class JobCrawlerbackend {
         {
             jobTexts.add(karriereScraper.parseJobsOnPage(pageUrl).toString().toLowerCase());
         }
+        return jobTexts;
+    }
 
-        ArrayList<String> skills;
-        try{
-           skills = getSkillsFromFile("/home/puppy/IdeaProjects/JobCrawlerbackend/skills.txt");
-        } catch (Exception e){
-            System.out.println("Couldn't open the file containing the skills! " + e.getMessage());
-            return;
-        }
+    /**
+     *
+     * @param pathToFile Text file that contains the skills to be matched in the job description.
+     *                   Skills are seperated with new lines, one skill per line.
+     * @return ArrayList of skills (string)
+     * @throws IOException
+     */
+    private static ArrayList<String> getSkillsFromFile(String pathToFile) throws IOException {
+      return new ArrayList<>(Files.readAllLines(Paths.get(pathToFile)));
+    }
 
+    /**
+     *
+     * @param skills ArrayList of skills to be matched.
+     * @param jobTexts ArrayList of jobTexts
+     * @return HashMap containing the found skills (key) and the number of occurrence in text (value)
+     */
+    private static HashMap<String, Integer> calcualteSkillFrequencies(ArrayList<String> skills,
+                                                                      ArrayList<String> jobTexts){
+        // TODO: Language detection, Tokenizing + POS Tagging -> MAtching only Nouns.
         HashMap<String, Integer> frequencies = new HashMap<>();
-
         for(String skill : skills){
             for(String text: jobTexts){
                 int count = 0;
-                Pattern p = Pattern.compile(skill);
+                Pattern p = Pattern.compile(escapeSpecialCharactersInRegex(skill));
                 Matcher m = p.matcher(text);
                 while (m.find()){
                     count +=1;
@@ -59,24 +109,11 @@ public class JobCrawlerbackend {
                 }
             }
         }
-        System.out.println(frequencies);
-        System.out.println("GG");
+        return frequencies;
     }
 
-    private static String askCity(){
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("In which city are you looking for jobs?");
-        return scanner.nextLine().toLowerCase();
-    }
-
-    private static String askKeyword(){
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter keyword, title or company");
-        return scanner.nextLine().toLowerCase();
-    }
-
-    private static ArrayList<String> getSkillsFromFile(String pathToFile) throws IOException {
-      return new ArrayList<>(Files.readAllLines(Paths.get(pathToFile)));
+    private static String escapeSpecialCharactersInRegex(String keyword){
+        return keyword.replaceAll("([^a-zA-Z0-9])", "\\\\$1");
     }
 
     /*private  static CommandLine parseArgs(String[] args){
