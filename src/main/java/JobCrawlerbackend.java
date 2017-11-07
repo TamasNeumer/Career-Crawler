@@ -1,3 +1,4 @@
+import Scraper.JobInfo;
 import Scraper.KarriereAtScraper;
 import NLP.NLP;
 import org.apache.commons.cli.*;
@@ -5,11 +6,7 @@ import org.apache.commons.cli.*;
 import java.lang.reflect.Array;
 import java.util.*;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 public class JobCrawlerbackend {
 
@@ -24,8 +21,17 @@ public class JobCrawlerbackend {
         ArrayList<String> jobTexts = scrapeKarriereAt(city, keyword);
         NLP nlp = new NLP();
         HashMap<String, Integer> frequencies = nlp.getFrequencyOfSkillsInJobTexts(jobTexts);
-        System.out.println(frequencies);
-        System.out.println("Ended");
+
+        //Remove elements with single hits
+        frequencies.entrySet().removeIf(entries->entries.getValue() == 1);
+
+        Set<Map.Entry<String, Integer>> set = frequencies.entrySet();
+        List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(set);
+        Collections.sort( list, (Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2 ) -> o2.getValue().compareTo(o1.getValue()));
+        for(Map.Entry<String, Integer> entry:list){
+            System.out.println(entry.getKey()+" ==== "+entry.getValue());
+        }
+        System.out.println("Done");
     }
 
     private static String askCity(){
@@ -56,7 +62,11 @@ public class JobCrawlerbackend {
         ArrayList<String> jobTexts = new ArrayList<>();
         for(String pageUrl : listOfURLs)
         {
-            jobTexts.add(karriereScraper.parseJobsOnPage(pageUrl).toString().toLowerCase());
+            ArrayList<JobInfo> jobInfos = karriereScraper.parseJobsOnPage(pageUrl);
+            for(JobInfo ji : jobInfos){
+                // TODO CLEAN! No lower case for POS!
+                jobTexts.add(ji.toString().toLowerCase());
+            }
         }
         return jobTexts;
     }

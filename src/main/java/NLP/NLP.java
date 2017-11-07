@@ -1,15 +1,15 @@
 package NLP;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 import org.apache.commons.io.IOUtils;
+import org.apache.tika.language.LanguageIdentifier;
 
 public class NLP {
     public HashMap<String, Integer> getFrequencyOfSkillsInJobTexts(ArrayList<String> jobTexts) {
@@ -40,14 +40,20 @@ public class NLP {
      * @param jobTexts ArrayList of jobTexts
      * @return HashMap containing the found skills (key) and the number of occurrence in text (value)
      */
-    private static HashMap<String, Integer> calcualteSkillFrequencies(ArrayList<String> skills,
+    private HashMap<String, Integer> calcualteSkillFrequencies(ArrayList<String> skills,
                                                                       ArrayList<String> jobTexts) {
-        // TODO: Language detection, Tokenizing + POS Tagging -> MAtching only Nouns.
+
+        ArrayList<String> cleanedJobTexts = new ArrayList<>();
+        for (String text : jobTexts) {
+            cleanedJobTexts.add(cleanTextForSkillRecognition(text));
+        }
+        // TODO: Language detection, Cleaning, Tokenizing + POS Tagging -> MAtching only Nouns.
         HashMap<String, Integer> frequencies = new HashMap<>();
         for (String skill : skills) {
-            for (String text : jobTexts) {
+            for (String text : cleanedJobTexts) {
+                // LanguageCode languageOfText = getLanguageOfText(text);
                 int count = 0;
-                Pattern p = Pattern.compile(escapeSpecialCharactersInRegex(skill));
+                Pattern p = Pattern.compile(addSpacesAroundWord(escapeSpecialCharactersInRegex(skill)));
                 Matcher m = p.matcher(text);
                 while (m.find()) {
                     count += 1;
@@ -65,7 +71,34 @@ public class NLP {
         return frequencies;
     }
 
-    private static String escapeSpecialCharactersInRegex(String keyword) {
+    private String escapeSpecialCharactersInRegex(String keyword) {
         return keyword.replaceAll("([^a-zA-Z0-9])", "\\\\$1");
+    }
+
+    private String addSpacesAroundWord(String keyword){
+        return " " + keyword + " ";
+    }
+
+    private String cleanTextForSkillRecognition(String text){
+        return text.replaceAll("[\\\\\\.\\(\\)\\,\\[\\]]"," ");
+    }
+
+    private LanguageCode getLanguageOfText(String text){
+        LanguageIdentifier identifier = new LanguageIdentifier(text);
+        String language = identifier.getLanguage();
+        switch(language){
+            case "en":
+                return LanguageCode.ENGLISH;
+            case "de":
+                return LanguageCode.GERMAN;
+            default:
+                return LanguageCode.UNKNOWN;
+        }
+    }
+
+    private enum LanguageCode {
+        ENGLISH,
+        GERMAN,
+        UNKNOWN
     }
 }
