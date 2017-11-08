@@ -12,17 +12,21 @@ import org.apache.commons.io.IOUtils;
 import org.apache.tika.language.LanguageIdentifier;
 
 public class NLP {
+
+    /**
+     * Counts the number of occurrences of each skill/framework from skills.txt in jobTexts.
+     * @param jobTexts Array of jobTexts containing all the scraped jobTexts.
+     * @return HashMap containing the found words (key) and their occurrence (value)
+     */
     public HashMap<String, Integer> getFrequencyOfSkillsInJobTexts(ArrayList<String> jobTexts) {
         ArrayList<String> skills = readSkillsFromFile();
-        HashMap<String, Integer> frequencies = calcualteSkillFrequencies(skills, jobTexts);
-        return frequencies;
+        return  calcualteSkillFrequencies(skills, jobTexts);
     }
 
     /**
      * Reads the skills into an arraylist and returns it to the caller. Returns an empty list, if the file
      * was not found.
-     *
-     * @return
+     * @return List of skills read from skills.txt
      */
     private ArrayList<String> readSkillsFromFile() {
         String result = "";
@@ -47,11 +51,9 @@ public class NLP {
         for (String text : jobTexts) {
             cleanedJobTexts.add(cleanTextForSkillRecognition(text));
         }
-        // TODO: Language detection, Cleaning, Tokenizing + POS Tagging -> MAtching only Nouns.
         HashMap<String, Integer> frequencies = new HashMap<>();
         for (String skill : skills) {
             for (String text : cleanedJobTexts) {
-                // LanguageCode languageOfText = getLanguageOfText(text);
                 int count = 0;
                 Pattern p = Pattern.compile(addSpacesAroundWord(escapeSpecialCharactersInRegex(skill)));
                 Matcher m = p.matcher(text);
@@ -81,24 +83,5 @@ public class NLP {
 
     private String cleanTextForSkillRecognition(String text){
         return text.replaceAll("[\\\\\\.\\(\\)\\,\\[\\]]"," ");
-    }
-
-    private LanguageCode getLanguageOfText(String text){
-        LanguageIdentifier identifier = new LanguageIdentifier(text);
-        String language = identifier.getLanguage();
-        switch(language){
-            case "en":
-                return LanguageCode.ENGLISH;
-            case "de":
-                return LanguageCode.GERMAN;
-            default:
-                return LanguageCode.UNKNOWN;
-        }
-    }
-
-    private enum LanguageCode {
-        ENGLISH,
-        GERMAN,
-        UNKNOWN
     }
 }
