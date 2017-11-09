@@ -2,9 +2,9 @@ package Scraper;
 
 public class JobInfo {
     protected String jobTitle;
-    protected String jobDecription;
+    protected String jobDescription;
 
-    public String toString(){
-        return "Title: " + this.jobTitle + " Description: " + this.jobDecription;
+    public String toString() {
+        return "Title: " + this.jobTitle + " Description: " + this.jobDescription;
     }
 }

@@ -42,7 +42,8 @@ public class JobCrawlerbackend {
     }
 
     /**
-     * Scrapes karriere.at for jobs in the IT domain, and collects jobs matching the city and keyword
+     * Scrapes karriere.at for jobs in the IT domain, and collects jobs matching the city and keyword.
+     * Sleep(5000) solves the issue of 501, where they block us for requesting URLs too fast.
      *
      * @param city    City that is used for the search.
      * @param keyword Keyword that is used for the search.
@@ -62,8 +63,7 @@ public class JobCrawlerbackend {
             }
             try {
                 Thread.sleep(5000);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 System.out.println(e.getMessage());
                 return jobTexts;
             }

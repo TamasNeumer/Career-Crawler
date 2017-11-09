@@ -9,23 +9,23 @@ import java.util.regex.Pattern;
 
 
 import org.apache.commons.io.IOUtils;
-import org.apache.tika.language.LanguageIdentifier;
 
 public class NLP {
-
     /**
      * Counts the number of occurrences of each skill/framework from skills.txt in jobTexts.
+     *
      * @param jobTexts Array of jobTexts containing all the scraped jobTexts.
      * @return HashMap containing the found words (key) and their occurrence (value)
      */
     public HashMap<String, Integer> getFrequencyOfSkillsInJobTexts(ArrayList<String> jobTexts) {
         ArrayList<String> skills = readSkillsFromFile();
-        return  calcualteSkillFrequencies(skills, jobTexts);
+        return calcualteSkillFrequencies(skills, jobTexts);
     }
 
     /**
      * Reads the skills into an arraylist and returns it to the caller. Returns an empty list, if the file
      * was not found.
+     *
      * @return List of skills read from skills.txt
      */
     private ArrayList<String> readSkillsFromFile() {
@@ -45,7 +45,7 @@ public class NLP {
      * @return HashMap containing the found skills (key) and the number of occurrence in text (value)
      */
     private HashMap<String, Integer> calcualteSkillFrequencies(ArrayList<String> skills,
-                                                                      ArrayList<String> jobTexts) {
+                                                               ArrayList<String> jobTexts) {
 
         ArrayList<String> cleanedJobTexts = new ArrayList<>();
         for (String text : jobTexts) {
@@ -73,15 +73,34 @@ public class NLP {
         return frequencies;
     }
 
-    private String escapeSpecialCharactersInRegex(String keyword) {
-        return keyword.replaceAll("([^a-zA-Z0-9])", "\\\\$1");
+    /**
+     * Function used to escape regex characters. (. ( ) + ? etc.)
+     * E.g.: If C++ is used as regex it has to be transformed to C\+\+.
+     *
+     * @param regex
+     * @return regex with escaped regex-sensitive characters.
+     */
+    private String escapeSpecialCharactersInRegex(String regex) {
+        return regex.replaceAll("([^a-zA-Z0-9])", "\\\\$1");
     }
 
-    private String addSpacesAroundWord(String keyword){
+    /**
+     * Adds two whitespaces around the word.
+     *
+     * @param keyword keyword to be transformed
+     * @return whitespace+keyowrd+whitespace
+     */
+    private String addSpacesAroundWord(String keyword) {
         return " " + keyword + " ";
     }
 
-    private String cleanTextForSkillRecognition(String text){
-        return text.replaceAll("[\\\\\\.\\(\\)\\,\\[\\]]"," ");
+    /**
+     * Replaces braces (), [], punctuations (, .) with whitespace.
+     *
+     * @param text text to be cleaned.
+     * @return cleaned text, free of braces, punctuations.
+     */
+    private String cleanTextForSkillRecognition(String text) {
+        return text.replaceAll("[\\\\\\.\\(\\)\\,\\[\\]]", " ");
     }
 }
