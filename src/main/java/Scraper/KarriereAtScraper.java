@@ -78,8 +78,8 @@ public class KarriereAtScraper implements CareerWebsiteScraper {
             String[] pageNumbers = htmlSpanContainingPageNumber.asText().split("von");
             return Integer.parseInt(pageNumbers[1].replaceAll("\\s", "").replaceAll(",", ""));
         } catch (Exception e) {
-            System.out.println("span[@class='m-pagination__meta'] not found on the website. Exception: " + e.getMessage());
-            System.out.println("Continuing, assuming that all the results fit on one page.");
+            // System.out.println("span[@class='m-pagination__meta'] not found on the website. Exception: " + e.getMessage());
+            // System.out.println("Continuing, assuming that all the results fit on one page.");
             return 1;
         }
     }

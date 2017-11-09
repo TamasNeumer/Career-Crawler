@@ -55,8 +55,15 @@ public class JobCrawlerbackend {
         karriereScraper.setProgrammingLanguage(keyword);
         ArrayList<String> listOfURLs = karriereScraper.getUrlsOfPagesContainingJobLists();
 
+        if (listOfURLs.size() == 1){
+            System.out.println("Less than 15 jobs were found. Starting scraping");
+        } else {
+            System.out.println("Approximately " + listOfURLs.size() * JOBS_PER_PAGE + " jobs were found. Starting scraping...");
+        }
+
         ArrayList<String> jobTexts = new ArrayList<>();
         for (String pageUrl : listOfURLs) {
+            System.out.println("Processing page " + (listOfURLs.indexOf(pageUrl) +1) + " out of " + listOfURLs.size());
             ArrayList<JobInfo> jobInfos = karriereScraper.parseJobsOnPage(pageUrl);
             for (JobInfo jobInfo : jobInfos) {
                 jobTexts.add(jobInfo.toString().toLowerCase());
@@ -70,4 +77,6 @@ public class JobCrawlerbackend {
         }
         return jobTexts;
     }
+
+    private static final int JOBS_PER_PAGE = 15;
 }
