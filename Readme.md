@@ -40,4 +40,4 @@ rest ==== 46
 - `mvn package`
 
 #### Run
-- ???
+- `java -cp ./target/JobCrawler-backend-1.0-SNAPSHOT-jar-with-dependencies.jar JobCrawlerbackend`
